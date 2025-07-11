@@ -8,6 +8,8 @@ import plotly.graph_objects as go
 from sklearn.linear_model import LinearRegression
 
 from nba_api.stats.static import players
+from nba_api.stats.endpoints import commonplayerinfo
+from nba_api.stats.endpoints import playercareerstats
 
 df = pd.read_csv("../data/merged.csv")
 df = df.rename(columns={'2024-25': 'Salary'})
@@ -72,17 +74,51 @@ if not highlight_df.empty:
         mode="markers+text",
         text=highlight_df["Player"],
         name="Selected Player",
-        marker=dict(color="blue", size=14, symbol="star"),
+        marker=dict(color="red", size=14, symbol="star"),
         textposition="top center"
     ))
-    ws = highlight_df.iloc[0]["WS"]
-    salary = highlight_df.iloc[0]["Salary"]
-    fig.update_layout(xaxis_range=[ws - 2, ws + 2], yaxis_range=[salary - 5000000, salary + 5000000])
-    st.subheader("Player Headshot")
+
+    selected_player = highlight_df.iloc[0]["Player"]
+
     found = players.find_players_by_full_name(selected_player)
     if found:
         player_id = found[0]["id"]
-        st.image(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png", width=240)
+
+        try:
+            career = playercareerstats.PlayerCareerStats(player_id=player_id)
+            df_stats = career.get_data_frames()[0]
+
+            total_gp = df_stats["GP"].sum()
+            total_min = df_stats["MIN"].sum()
+            total_pts = df_stats["PTS"].sum()
+            total_reb = df_stats["REB"].sum()
+            total_ast = df_stats["AST"].sum()
+            total_stl = df_stats["STL"].sum()
+            total_blk = df_stats["BLK"].sum()
+
+            mpg = total_min / total_gp
+            ppg = total_pts / total_gp
+            rpg = total_reb / total_gp
+            apg = total_ast / total_gp
+            spg = total_stl / total_gp
+            bpg = total_blk / total_gp
+
+            col1, col2 = st.columns([1, 2])
+            with col1:
+                st.image(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png", width=220)
+            with col2:
+                st.markdown(f"**{selected_player} - Career Averages**")
+                st.markdown(f"""
+                - **Games Played (GP):** {int(total_gp)}
+                - **Minutes per Game (MPG):** {mpg:.1f}  
+                - **Points per Game (PPG):** {ppg:.1f}  
+                - **Rebounds per Game (RPG):** {rpg:.1f}  
+                - **Assists per Game (APG):** {apg:.1f}  
+                - **Steals per Game (SPG):** {spg:.1f}  
+                - **Blocks per Game (BPG):** {bpg:.1f}
+                """)
+        except Exception as e:
+            st.warning(f"Stats not available for {selected_player}. Error: {str(e)}")
     else:
         st.info("Headshot not available.")
 
