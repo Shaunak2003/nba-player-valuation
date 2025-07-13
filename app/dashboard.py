@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -47,28 +48,6 @@ if selected_player and selected_player != "None":
 st.title("NBA Player Value Dashboard")
 st.text(f"📊 Total players displayed: {len(filtered_df)}")
 
-
-if graph_option == "Salary vs Win Shares":
-    fig = salary_ws_graph(filtered_df, df, highlight_df)
-    st.plotly_chart(fig, use_container_width=True)
-    st.subheader("Top 10 Value Players (WS / Salary)")
-    top_value = filtered_df.sort_values("Value_Index", ascending=False).head(10)
-    st.dataframe(top_value[["Player", "Team", "Pos", "WS", "Salary", "Value_Index", "Total_MP"]])
-
-elif graph_option == "Win Shares vs Usage Rate":
-    fig = ws_usage_graph(filtered_df, df, highlight_df)
-    st.plotly_chart(fig, use_container_width=True)
-    st.subheader("Top 10 by Usage-WS Ratio")
-    top_value = filtered_df.sort_values("Usage_Index", ascending=False).head(10)
-    st.dataframe(top_value[["Player", "Team", "Pos", "WS", "USG%", "Usage_Index", "Total_MP"]])
-
-elif graph_option == "Turnovers vs Assists":
-    fig = tov_ast_graph(filtered_df, df, highlight_df)
-    st.plotly_chart(fig, use_container_width=True)
-    st.subheader("Top 10 by AST/TOV Ratio")
-    top_value = filtered_df.sort_values("Possession_Control", ascending=False).head(10)
-    st.dataframe(top_value[["Player", "Team", "Pos", "AST", "TOV", "Possession_Control", "Total_MP"]])
-
 if not highlight_df.empty:
     selected_player = highlight_df.iloc[0]["Player"]
     found = players.find_players_by_full_name(selected_player)
@@ -111,3 +90,24 @@ if not highlight_df.empty:
             st.warning(f"Stats not available for {selected_player}. Error: {str(e)}")
     else:
         st.info("Headshot not available.")
+
+if graph_option == "Salary vs Win Shares":
+    fig = salary_ws_graph(filtered_df, df, highlight_df)
+    st.plotly_chart(fig, use_container_width=True)
+    st.subheader("Top 10 Value Players (WS / Salary)")
+    top_value = filtered_df.sort_values("Value_Index", ascending=False).head(10)
+    st.dataframe(top_value[["Player", "Team", "Pos", "WS", "Salary", "Value_Index", "Total_MP"]])
+
+elif graph_option == "Win Shares vs Usage Rate":
+    fig = ws_usage_graph(filtered_df, df, highlight_df)
+    st.plotly_chart(fig, use_container_width=True)
+    st.subheader("Top 10 by Usage-WS Ratio")
+    top_value = filtered_df.sort_values("Usage_Index", ascending=False).head(10)
+    st.dataframe(top_value[["Player", "Team", "Pos", "WS", "USG%", "Usage_Index", "Total_MP"]])
+
+elif graph_option == "Turnovers vs Assists":
+    fig = tov_ast_graph(filtered_df, df, highlight_df)
+    st.plotly_chart(fig, use_container_width=True)
+    st.subheader("Top 10 by AST/TOV Ratio")
+    top_value = filtered_df.sort_values("Possession_Control", ascending=False).head(10)
+    st.dataframe(top_value[["Player", "Team", "Pos", "AST", "TOV", "Possession_Control", "Total_MP"]])
