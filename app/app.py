@@ -75,6 +75,10 @@ if not highlight_df.empty:
             col1, col2 = st.columns([1, 2])
             with col1:
                 st.image(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png", width=220)
+                if st.button("View Advanced Stats"):
+                    st.session_state.selected_player_name = selected_player
+                    st.session_state.selected_player_id = player_id
+                    st.switch_page("../app/pages/advanced_stats.py")
             with col2:
                 st.markdown(f"**{selected_player} - Career Averages**")
                 st.markdown(f"""
